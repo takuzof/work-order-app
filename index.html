@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f9fc">
+<title>工事発注アプリ</title>
+<style>
+:root{
+  --bg:#f4f7fb;
+  --panel:#ffffff;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --line:#dfe5ec;
+  --accent:#3b82f6;
+  --accent2:#eef5ff;
+  --danger:#dc2626;
+  --ok:#16a34a;
+  --radius:18px;
+  --shadow:0 8px 28px rgba(31,41,55,.08);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic UI","Yu Gothic",Meiryo,sans-serif}
+body{min-height:100vh}
+.app{max-width:760px;margin:0 auto;padding:16px 16px 96px}
+.header{
+  background:linear-gradient(180deg,#fff,#f8fbff);
+  border:1px solid var(--line);
+  border-radius:24px;
+  padding:18px 18px 16px;
+  box-shadow:var(--shadow);
+  margin-bottom:14px;
+}
+.brand{display:flex;align-items:center;gap:12px}
+.badge{
+  width:46px;height:46px;border-radius:14px;background:var(--accent2);
+  display:grid;place-items:center;font-size:24px;border:1px solid #d7e6ff
+}
+h1{font-size:22px;margin:0;font-weight:800;letter-spacing:.02em}
+.sub{font-size:13px;color:var(--muted);margin-top:4px}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}
+.tab{border:0;border-radius:12px;padding:11px 8px;background:#eef2f7;color:#475569;font-weight:700}
+.tab.active{background:var(--accent);color:#fff}
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:16px;margin:12px 0;
+}
+.section-title{font-size:15px;font-weight:800;margin:0 0 12px;display:flex;align-items:center;gap:7px}
+label{display:block;font-size:13px;font-weight:700;margin:12px 0 6px}
+input,select,textarea{
+  width:100%;font-size:16px;border:1px solid #cfd8e3;border-radius:12px;padding:13px 12px;background:#fff;color:var(--text);
+}
+textarea{min-height:120px;resize:vertical}
+.row{display:grid;grid-template-columns:1.4fr .8fr;gap:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.help{font-size:12px;color:var(--muted);margin-top:6px}
+.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cat{
+  border:1px solid var(--line);border-radius:12px;background:#fff;padding:12px 6px;text-align:center;font-size:13px;font-weight:700
+}
+.cat.active{border-color:var(--accent);background:var(--accent2);color:#1d4ed8}
+.photo-btn{
+  display:block;width:100%;padding:15px;border:1.5px dashed #9db7d8;border-radius:14px;background:#f8fbff;
+  text-align:center;font-weight:800;color:#315b88
+}
+.voice-wrap{display:flex;gap:8px;align-items:stretch}
+.voice-wrap textarea{flex:1}
+.voice-btn{
+  min-width:92px;border:0;border-radius:12px;background:#eef5ff;color:#1d4ed8;
+  font-weight:800;font-size:14px;padding:10px 12px
+}
+.voice-btn.listening{background:#fee2e2;color:#b91c1c}
+#photos{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
+.ph{position:relative;border-radius:12px;overflow:hidden;background:#eef2f7;aspect-ratio:4/3}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.rm{position:absolute;right:6px;top:6px;border:0;border-radius:999px;width:28px;height:28px;background:rgba(0,0,0,.6);color:#fff}
+.vendor-box{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:10px}
+.vendor-name{font-weight:800}
+.vendor-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.actions{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+.actions-inner{max-width:760px;margin:0 auto;display:grid;grid-template-columns:1fr 1.5fr;gap:10px}
+.btn{border:0;border-radius:14px;padding:14px 12px;font-size:15px;font-weight:800}
+.btn-secondary{background:#eef2f7;color:#334155}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-danger{background:#fee2e2;color:#991b1b}
+.small{font-size:12px;padding:8px 10px}
+.hidden{display:none!important}
+.item{padding:12px 0;border-bottom:1px solid #edf1f5}
+.item:last-child{border-bottom:0}
+.item-title{font-weight:800}
+.item-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.inline-actions{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.empty{padding:20px;text-align:center;color:var(--muted);font-size:13px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:90px;background:#111827;color:white;padding:10px 14px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:9}
+.toast.show{opacity:1}
+@media(max-width:520px){.category-grid{grid-template-columns:repeat(2,1fr)}.row,.row2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="brand">
+      <div class="badge">🛠️</div>
+      <div>
+        <h1>工事発注アプリ</h1>
+        <div class="sub">現地写真から、そのまま業者へ発注</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" data-page="order">発注</button>
+      <button class="tab" data-page="masters">マスター</button>
+      <button class="tab" data-page="history">履歴</button>
+    </div>
+  </div>
+
+  <main id="page-order">
+    <div class="card">
+      <div class="section-title">🏢 物件情報</div>
+      <div class="row">
+        <div>
+          <label>物件名 *</label>
+          <select id="property"></select>
+        </div>
+        <div>
+          <label>号室 *</label>
+          <input id="room" placeholder="例：301">
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <label>入居者名</label>
+          <input id="tenant" placeholder="例：山田 太郎">
+        </div>
+        <div>
+          <label>連絡先</label>
+          <input id="tenantPhone" type="tel" placeholder="例：090-1234-5678">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">🔧 不具合内容</div>
+      <label>種類</label>
+      <div class="category-grid" id="cats"></div>
+      <label>設備</label>
+      <select id="equipment">
+        <option value="">選択してください</option>
+        <option>キッチン</option>
+        <option>浴室</option>
+        <option>洗面</option>
+        <option>トイレ</option>
+        <option>エアコン</option>
+        <option>給湯器</option>
+        <option>換気扇</option>
+        <option>照明</option>
+        <option>インターホン</option>
+        <option>建具</option>
+        <option>窓・ガラス</option>
+        <option>鍵</option>
+        <option>その他</option>
+      </select>
+
+      <label>状況説明 *</label>
+      <div class="voice-wrap">
+        <textarea id="issue" placeholder="例：キッチンシンク下から漏水。排水時に水がにじみ出ます。"></textarea>
+        <button type="button" class="voice-btn" id="voiceBtn">🎙️ 音声入力</button>
+      </div>
+      <div class="help">ボタンを押して話すと、不具合内容を文章として追記します。</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">📷 現地写真</div>
+      <label class="photo-btn" for="photoInput">＋ 写真を撮る / 選ぶ</label>
+      <input id="photoInput" class="hidden" type="file" accept="image/*" capture="environment" multiple>
+      <div id="photos"></div>
+      <div class="help">複数枚添付できます。写真は送信しやすいよう長辺1600px程度に自動圧縮します。</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">📅 希望日時</div>
+      <div class="row2">
+        <div><label>希望日</label><input id="date" type="date"></div>
+        <div><label>時間帯</label>
+          <select id="time">
+            <option value="">指定なし</option>
+            <option>午前</option><option>午後</option><option>終日可</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">📝 業者への指示</div>
+      <label>よく使う指示</label>
+      <div class="category-grid" id="instructionPresets"></div>
+      <label>追加指示</label>
+      <textarea id="instructions" placeholder="例：入居者様へ直接ご連絡いただき、訪問日時を調整してください。日程確定後、弊社へご連絡ください。"></textarea>
+      <div class="help">よく使う指示はタップすると追加指示欄へ入ります。必要に応じて自由に編集できます。</div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">👷 発注先</div>
+      <div id="vendorResult" class="vendor-box">物件と不具合の種類を選ぶと、おすすめ業者を自動表示します。</div>
+      <label>発注する業者</label>
+      <select id="vendorSelect"></select>
+      <div class="help">おすすめ業者が自動選択されますが、必要な場合はここで別の業者へ変更できます。</div>
+    </div>
+  </main>
+
+  <main id="page-masters" class="hidden">
+    <div class="card">
+      <div class="section-title">🏢 物件マスター</div>
+      <div class="row">
+        <input id="newProp" placeholder="物件名">
+        <button class="btn btn-primary" id="addProp">追加</button>
+      </div>
+      <div id="propList"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">👷 業者マスター</div>
+      <label>業者名</label><input id="vName" placeholder="例：〇〇設備">
+      <div class="row2">
+        <div><label>メール</label><input id="vEmail" type="email" placeholder="example@company.jp"></div>
+        <div><label>電話</label><input id="vPhone" type="tel" placeholder="03-0000-0000"></div>
+      </div>
+      <button class="btn btn-primary" id="addVendor" style="width:100%;margin-top:12px">業者を追加</button>
+      <div id="vendorList"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">🔗 物件 × 工種のおすすめ業者設定</div>
+      <label>物件</label><select id="mapProp"></select>
+      <label>工種</label><select id="mapCat"></select>
+      <label>おすすめ業者</label><select id="mapVendor"></select>
+      <button class="btn btn-primary" id="saveMap" style="width:100%;margin-top:12px">おすすめ業者を設定</button>
+      <div id="mapList"></div>
+    </div>
+  </main>
+
+  <main id="page-history" class="hidden">
+    <div class="card">
+      <div class="section-title">🗂 発注履歴</div>
+      <div id="historyList"></div>
+    </div>
+  </main>
+</div>
+
+<div class="actions" id="orderActions">
+  <div class="actions-inner">
+    <button class="btn btn-secondary" id="clearBtn">入力クリア</button>
+    <button class="btn btn-primary" id="sendBtn">業者へ送る</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const CATS=["水道・漏水","電気","ガス","エアコン","給湯器","建具","排水・臭気","鍵","ガラス","内装","その他"];
+const INSTRUCTION_PRESETS=[
+  "入居者へ直接連絡して日程調整",
+  "日程確定後に弊社へ連絡",
+  "訪問前に入居者へ連絡",
+  "見積提出後に工事実施",
+  "写真付きで完了報告",
+  "緊急対応をお願いします"
+];
+const KEY="order_app_v3";
+let state=JSON.parse(localStorage.getItem(KEY)||"null") || {
+  properties:["サンプルマンション"],
+  vendors:[{id:"v1",name:"サンプル設備",email:"",phone:""}],
+  maps:[],
+  history:[]
+};
+let selectedCat="";
+let photoFiles=[];
+
+const $=s=>document.querySelector(s);
+const esc=s=>(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function toast(msg){const t=$("#toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1800)}
+function uid(){return "v"+Date.now()+Math.random().toString(16).slice(2)}
+
+function renderTabs(){
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    ["order","masters","history"].forEach(p=>$("#page-"+p).classList.toggle("hidden",p!==b.dataset.page));
+    $("#orderActions").classList.toggle("hidden",b.dataset.page!=="order");
+    if(b.dataset.page==="masters") renderMasters();
+    if(b.dataset.page==="history") renderHistory();
+  });
+}
+function renderInstructionPresets(){
+  $("#instructionPresets").innerHTML=INSTRUCTION_PRESETS.map((t,i)=>`<button class="cat" data-i="${i}">${esc(t)}</button>`).join("");
+  document.querySelectorAll("#instructionPresets .cat").forEach(b=>b.onclick=()=>{
+    const text=INSTRUCTION_PRESETS[Number(b.dataset.i)];
+    const ta=$("#instructions");
+    const current=ta.value.trim();
+    const presetText = {
+      "入居者へ直接連絡して日程調整":"入居者様へ直接ご連絡いただき、訪問日時を調整してください。",
+      "日程確定後に弊社へ連絡":"訪問日時が確定しましたら、弊社へご連絡ください。",
+      "訪問前に入居者へ連絡":"訪問前に入居者様へご連絡をお願いいたします。",
+      "見積提出後に工事実施":"工事着手前にお見積りをご提出ください。弊社確認後に工事をお願いいたします。",
+      "写真付きで完了報告":"作業完了後、施工前後の写真を添えてご報告ください。",
+      "緊急対応をお願いします":"緊急対応をお願いいたします。可能な限り早急にご連絡・ご対応ください。"
+    }[text];
+    ta.value = current ? current + "\n" + presetText : presetText;
+  });
+}
+function renderCats(){
+  $("#cats").innerHTML=CATS.map(c=>`<button class="cat ${selectedCat===c?"active":""}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+  document.querySelectorAll(".cat").forEach(b=>b.onclick=()=>{selectedCat=b.dataset.c;renderCats();updateVendor()});
+}
+function renderPropertySelects(){
+  const opts='<option value="">選択してください</option>'+state.properties.map(p=>`<option>${esc(p)}</option>`).join("");
+  const cur=$("#property").value, mcur=$("#mapProp")?.value;
+  $("#property").innerHTML=opts;
+  if(state.properties.includes(cur)) $("#property").value=cur;
+  if($("#mapProp")){ $("#mapProp").innerHTML=opts; if(state.properties.includes(mcur)) $("#mapProp").value=mcur; }
+}
+function renderMapCats(){ if($("#mapCat")) $("#mapCat").innerHTML=CATS.map(c=>`<option>${esc(c)}</option>`).join(""); }
+function vendorById(id){return state.vendors.find(v=>v.id===id)}
+function updateVendor(){
+  const p=$("#property").value;
+  const m=state.maps.find(x=>x.property===p&&x.cat===selectedCat);
+  const recommended=m&&vendorById(m.vendorId);
+
+  const sel=$("#vendorSelect");
+  const previous=sel.value;
+  sel.innerHTML='<option value="">選択してください</option>' +
+    state.vendors.map(v=>`<option value="${v.id}">${esc(v.name)}</option>`).join("");
+
+  if(recommended){
+    sel.value=recommended.id;
+    $("#vendorResult").innerHTML=
+      `<div class="vendor-name">おすすめ：${esc(recommended.name)}</div>
+       <div class="vendor-meta">${esc(recommended.email||"メール未登録")} ${recommended.phone?"・ "+esc(recommended.phone):""}</div>`;
+  }else{
+    if(previous && state.vendors.some(v=>v.id===previous)) sel.value=previous;
+    $("#vendorResult").innerHTML=
+      `おすすめ業者が未設定です。${p&&selectedCat?"必要な業者を下から選ぶか、「マスター」でおすすめ業者を設定してください。":"物件と不具合の種類を選択してください。"}`;
+  }
+}
+
+$("#vendorSelect").onchange=()=>{
+  const v=vendorById($("#vendorSelect").value);
+  if(v){
+    $("#vendorResult").innerHTML=
+      `<div class="vendor-name">発注先：${esc(v.name)}</div>
+       <div class="vendor-meta">${esc(v.email||"メール未登録")} ${v.phone?"・ "+esc(v.phone):""}</div>`;
+  }
+};
+function renderMasters(){
+  renderPropertySelects();renderMapCats();
+  $("#propList").innerHTML=state.properties.length?state.properties.map((p,i)=>`
+    <div class="item"><div class="item-title">${esc(p)}</div>
+    <div class="inline-actions"><button class="btn btn-danger small" onclick="delProp(${i})">削除</button></div></div>`).join(""):'<div class="empty">物件がありません</div>';
+  $("#vendorList").innerHTML=state.vendors.length?state.vendors.map(v=>`
+    <div class="item"><div class="item-title">${esc(v.name)}</div><div class="item-meta">${esc(v.email||"メール未登録")} ${v.phone?" / "+esc(v.phone):""}</div>
+    <div class="inline-actions"><button class="btn btn-danger small" onclick="delVendor('${v.id}')">削除</button></div></div>`).join(""):'<div class="empty">業者がありません</div>';
+  $("#mapVendor").innerHTML='<option value="">選択してください</option>'+state.vendors.map(v=>`<option value="${v.id}">${esc(v.name)}</option>`).join("");
+  $("#mapList").innerHTML=state.maps.length?state.maps.map((m,i)=>{
+    const v=vendorById(m.vendorId);return `<div class="item"><div class="item-title">${esc(m.property)} / ${esc(m.cat)}</div><div class="item-meta">${esc(v?v.name:"未登録")}</div><div class="inline-actions"><button class="btn btn-danger small" onclick="delMap(${i})">解除</button></div></div>`
+  }).join(""):'<div class="empty">おすすめ業者設定がありません</div>';
+}
+window.delProp=i=>{if(confirm("この物件を削除しますか？")){const p=state.properties[i];state.properties.splice(i,1);state.maps=state.maps.filter(m=>m.property!==p);save();renderMasters();renderPropertySelects();updateVendor();}}
+window.delVendor=id=>{if(confirm("この業者を削除しますか？")){state.vendors=state.vendors.filter(v=>v.id!==id);state.maps=state.maps.filter(m=>m.vendorId!==id);save();renderMasters();updateVendor();}}
+window.delMap=i=>{state.maps.splice(i,1);save();renderMasters();updateVendor();}
+
+$("#addProp").onclick=()=>{const v=$("#newProp").value.trim();if(!v)return toast("物件名を入力してください");if(state.properties.includes(v))return toast("登録済みです");state.properties.push(v);$("#newProp").value="";save();renderMasters();renderPropertySelects();toast("物件を追加しました")};
+$("#addVendor").onclick=()=>{const name=$("#vName").value.trim();if(!name)return toast("業者名を入力してください");state.vendors.push({id:uid(),name,email:$("#vEmail").value.trim(),phone:$("#vPhone").value.trim()});["#vName","#vEmail","#vPhone"].forEach(s=>$(s).value="");save();renderMasters();toast("業者を追加しました")};
+$("#saveMap").onclick=()=>{const property=$("#mapProp").value,cat=$("#mapCat").value,vendorId=$("#mapVendor").value;if(!property||!cat||!vendorId)return toast("すべて選択してください");state.maps=state.maps.filter(m=>!(m.property===property&&m.cat===cat));state.maps.push({property,cat,vendorId});save();renderMasters();updateVendor();toast("おすすめ業者を設定しました")};
+
+$("#property").onchange=updateVendor;
+async function compressImage(file){
+  if(!file.type.startsWith("image/")) return file;
+
+  const img = await new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = ()=>{
+      const im = new Image();
+      im.onload = ()=>resolve(im);
+      im.onerror = reject;
+      im.src = r.result;
+    };
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+
+  const maxSide = 1600;
+  let w = img.width, h = img.height;
+  if(Math.max(w,h) > maxSide){
+    const scale = maxSide / Math.max(w,h);
+    w = Math.round(w*scale);
+    h = Math.round(h*scale);
+  }
+
+  const canvas = document.createElement("canvas");
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(img,0,0,w,h);
+
+  const blob = await new Promise(resolve=>canvas.toBlob(resolve,"image/jpeg",0.8));
+  if(!blob) return file;
+
+  const base = file.name.replace(/\.[^.]+$/,"") || "photo";
+  return new File([blob], base+"_compressed.jpg", {type:"image/jpeg", lastModified:Date.now()});
+}
+
+$("#photoInput").onchange=async e=>{
+  const files = Array.from(e.target.files);
+  if(!files.length) return;
+  toast("写真を軽量化しています…");
+  for(const f of files){
+    try{
+      photoFiles.push(await compressImage(f));
+    }catch(err){
+      photoFiles.push(f);
+    }
+  }
+  renderPhotos();
+  e.target.value="";
+  toast("写真を追加しました");
+};
+function renderPhotos(){
+  $("#photos").innerHTML="";
+  photoFiles.forEach((f,i)=>{
+    const url=URL.createObjectURL(f);
+    const d=document.createElement("div");d.className="ph";
+    d.innerHTML=`<img alt="現地写真"><button class="rm" aria-label="削除">×</button>`;
+    d.querySelector("img").src=url;
+    d.querySelector(".rm").onclick=()=>{photoFiles.splice(i,1);renderPhotos()};
+    $("#photos").appendChild(d);
+  });
+}
+function buildText(){
+  const p=$("#property").value,
+        room=$("#room").value.trim(),
+        tenant=$("#tenant").value.trim(),
+        tenantPhone=$("#tenantPhone").value.trim(),
+        equipment=$("#equipment").value,
+        issue=$("#issue").value.trim(),
+        instructions=$("#instructions").value.trim(),
+        date=$("#date").value,
+        time=$("#time").value;
+
+  return `【工事対応のお願い】
+
+■物件
+${p} ${room}号室
+
+■入居者
+氏名：${tenant||"未入力"}
+連絡先：${tenantPhone||"未入力"}
+
+■不具合内容
+種類：${selectedCat||"未選択"}
+設備：${equipment||"未選択"}
+状況：${issue}
+
+■訪問希望
+${date||"指定なし"} ${time||""}
+
+■業者様へのお願い
+${instructions||"特記事項なし"}
+
+■現地写真
+添付写真をご確認ください。
+
+お手数ですが、内容をご確認のうえご対応をお願いいたします。`;
+}
+function validate(){
+  if(!$("#property").value)return "物件名を選択してください";
+  if(!$("#room").value.trim())return "号室を入力してください";
+  if(!selectedCat)return "不具合の種類を選択してください";
+  if(!$("#issue").value.trim())return "状況説明を入力してください";
+  if(!$("#vendorSelect").value)return "発注する業者を選択してください";
+  return "";
+}
+$("#sendBtn").onclick=async()=>{
+  const err=validate();if(err)return toast(err);
+  const p=$("#property").value,room=$("#room").value.trim();
+  const v=vendorById($("#vendorSelect").value);
+  const text=buildText();
+  state.history.unshift({
+    id:Date.now(),
+    ts:new Date().toISOString(),
+    property:p,
+    room,
+    tenant:$("#tenant").value.trim(),
+    tenantPhone:$("#tenantPhone").value.trim(),
+    cat:selectedCat,
+    equipment:$("#equipment").value,
+    issue:$("#issue").value.trim(),
+    instructions:$("#instructions").value.trim(),
+    vendor:v?v.name:"未設定"
+  });
+  state.history=state.history.slice(0,100);save();
+  if(navigator.share){
+    try{
+      const shareData={title:`工事発注 ${p} ${room}号室`,text};
+      if(photoFiles.length && navigator.canShare && navigator.canShare({files:photoFiles})) shareData.files=photoFiles;
+      await navigator.share(shareData);
+      toast("共有画面を開きました"); renderHistory();
+      return;
+    }catch(e){ if(e.name==="AbortError") return; }
+  }
+  if(v&&v.email){
+    const subject=encodeURIComponent(`工事発注 ${p} ${room}号室`);
+    const body=encodeURIComponent(text+"\n\n※写真はこの端末から別途添付してください。");
+    location.href=`mailto:${encodeURIComponent(v.email)}?subject=${subject}&body=${body}`;
+  }else{
+    await navigator.clipboard.writeText(text).catch(()=>{});
+    toast("発注文をコピーしました");
+  }
+};
+$("#clearBtn").onclick=()=>{
+  if(!confirm("入力内容をクリアしますか？"))return;
+  $("#room").value="";
+  $("#tenant").value="";
+  $("#tenantPhone").value="";
+  $("#equipment").value="";
+  $("#issue").value="";
+  $("#instructions").value="";
+  $("#date").value="";
+  $("#time").value="";
+  selectedCat="";
+  photoFiles=[];
+  renderCats();
+  renderPhotos();
+  updateVendor();
+};
+
+function renderHistory(){
+  $("#historyList").innerHTML=state.history.length?state.history.map(h=>{
+    const d=new Date(h.ts); const ds=d.toLocaleString("ja-JP");
+    return `<div class="item">
+      <div class="item-title">${esc(h.property)} ${esc(h.room)}号室</div>
+      <div class="item-meta">${esc(h.tenant||"入居者名未入力")} ${h.tenantPhone?" / "+esc(h.tenantPhone):""}</div>
+      <div class="item-meta">${esc(h.cat)}${h.equipment?" / "+esc(h.equipment):""} / ${esc(h.vendor)} / ${esc(ds)}</div>
+      <div class="item-meta">${esc(h.issue)}</div>
+      ${h.instructions?`<div class="item-meta">指示：${esc(h.instructions)}</div>`:""}
+    </div>`
+  }).join(""):'<div class="empty">まだ発注履歴がありません</div>';
+}
+
+
+let recognition=null;
+let listening=false;
+
+function setupVoiceInput(){
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const btn=$("#voiceBtn");
+
+  if(!SpeechRecognition){
+    btn.onclick=()=>{
+      toast("このブラウザでは音声入力ボタンに対応していません。iPhoneのキーボード音声入力をご利用ください。");
+      $("#issue").focus();
+    };
+    return;
+  }
+
+  recognition=new SpeechRecognition();
+  recognition.lang="ja-JP";
+  recognition.interimResults=true;
+  recognition.continuous=false;
+
+  let baseText="";
+
+  recognition.onstart=()=>{
+    listening=true;
+    baseText=$("#issue").value.trim();
+    btn.classList.add("listening");
+    btn.textContent="⏹ 停止";
+    toast("音声入力を開始しました");
+  };
+
+  recognition.onresult=e=>{
+    let finalText="";
+    let interimText="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal) finalText+=t;
+      else interimText+=t;
+    }
+    const prefix=baseText ? baseText + (baseText.endsWith("。") ? "" : "。") : "";
+    $("#issue").value=prefix + finalText + interimText;
+  };
+
+  recognition.onerror=e=>{
+    if(e.error!=="aborted") toast("音声入力でエラーが発生しました");
+  };
+
+  recognition.onend=()=>{
+    listening=false;
+    btn.classList.remove("listening");
+    btn.textContent="🎙️ 音声入力";
+  };
+
+  btn.onclick=()=>{
+    if(listening){
+      recognition.stop();
+    }else{
+      try{ recognition.start(); }
+      catch(e){ toast("少し待ってからもう一度押してください"); }
+    }
+  };
+}
+
+setupVoiceInput();renderTabs();renderCats();renderInstructionPresets();renderPropertySelects();updateVendor();renderHistory();
+</script>
+</body>
+</html>
